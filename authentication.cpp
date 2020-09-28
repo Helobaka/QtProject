@@ -5,6 +5,7 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QTableView>
+#include <QSqlRecord>
 
 Authentication::Authentication(QWidget *parent):
         QWidget(parent),
@@ -21,12 +22,11 @@ Authentication::~Authentication()
 void Authentication::on_BtnLogin_clicked()
 {
 
-    //ура
-    QString fwe;
+    QMessageBox msgBox;
     QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
     db.setHostName("localhost");
     db.setPort(5433);
-    db.setDatabaseName("main");
+    db.setDatabaseName("postgres");
     db.setUserName("postgres");
     db.setPassword("12347");
     if(!db.open()){
@@ -35,24 +35,28 @@ void Authentication::on_BtnLogin_clicked()
 
 
     QSqlTableModel* model = new QSqlTableModel(this, db);
-    model->setTable("temp");
+    QSqlTableModel model1;
+    model->setTable("people");
+    QString filter = QString("login='%1'").arg(ui->TextLogin->text());
+    model->setFilter(filter);
     model->select();
+    if (model->rowCount() == 1){
+        QString login = model->record(0).value("login").toString();
+        QString password = model->record(0).value("password").toString();
+        if (password == ui->TextPassword->text())
+        {
+            msgBox.setText("Проходите");
+        }
+        else{
+            msgBox.setText("Не правильный пароль");
+        }
+    }else {
+       msgBox.setText("Такого логина нет");
+    }
+
     ui->tableView->setModel(model);
-//    QTableView *view = new QTableView;
-//    view->setModel(&model);
-//    view->show();
 
-    QString Login = "qwerty";
-    QString Password = "1234";
-    QMessageBox msgBox;
 
-    if (Login == ui->TextLogin->text() && Password == ui->TextPassword->text())
-    {
-        msgBox.setText("Проходите");
-    }
-    else{
-        msgBox.setText("Не правильный логин или пароль");
-    }
     msgBox.exec();
     db.close();
 }
