@@ -9,11 +9,13 @@ CONFIG += c++11
 
 SOURCES += \
     authentication.cpp \
+    databasepsql.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     authentication.h \
+    databasepsql.h \
     mainwindow.h
 
 FORMS += \

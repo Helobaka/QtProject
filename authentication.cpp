@@ -1,11 +1,13 @@
 #include "authentication.h"
 #include "ui_authentication.h"
+#include "databasepsql.h"
 #include <QMessageBox>
 #include <QSqlRelationalTableModel>
 #include <QSqlError>
 #include <QDebug>
 #include <QTableView>
 #include <QSqlRecord>
+
 
 Authentication::Authentication(QWidget *parent):
         QWidget(parent),
@@ -23,21 +25,20 @@ Authentication::~Authentication()
 
 void Authentication::on_BtnLogin_clicked()
 {
-
+    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
     QMessageBox msgBox;
-    QSqlDatabase db = QSqlDatabase::addDatabase("QPSQL");
-    db.setHostName("localhost");
-    db.setPort(5433);
-    db.setDatabaseName("postgres");
-    db.setUserName("postgres");
-    db.setPassword("12347");
-    if(!db.open()){
-        qDebug() << db.lastError().text();
-    }
+    QSqlDatabase db = dbSingle->getDB();
+//    db.setHostName("localhost");
+//    db.setPort(5433);
+//    db.setDatabaseName("postgres");
+//    db.setUserName("postgres");
+//    db.setPassword("12347");
+//    if(!db.open()){
+//        qDebug() << db.lastError().text();
+//    }
 
 
     QSqlTableModel* model = new QSqlTableModel(this, db);
-    QSqlTableModel model1;
     model->setTable("people");
     QString filter = QString("login='%1'").arg(ui->TextLogin->text());
     model->setFilter(filter);
