@@ -12,6 +12,8 @@ Authentication::Authentication(QWidget *parent):
         ui(new Ui::Authentication)
 {
      ui->setupUi(this);
+     mainWindow = new MainWindow();
+     connect(this, SIGNAL(sendLogin(QString)), mainWindow, SLOT(getLogin(QString)));
 }
 
 Authentication::~Authentication()
@@ -46,6 +48,9 @@ void Authentication::on_BtnLogin_clicked()
         if (password == ui->TextPassword->text())
         {
             msgBox.setText("Проходите");
+            mainWindow->show();
+            emit sendLogin(login);
+            this->close();
         }
         else{
             msgBox.setText("Не правильный пароль");

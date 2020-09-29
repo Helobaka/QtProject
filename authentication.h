@@ -1,6 +1,7 @@
 #ifndef AUTHENTICATION_H
 #define AUTHENTICATION_H
 
+#include "mainwindow.h"
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -14,11 +15,15 @@ public:
     explicit Authentication(QWidget *parent=0);
     ~Authentication();
 
+signals:
+    void sendLogin(QString Login);
+
 private slots:
     void on_BtnLogin_clicked();
 
 private:
     Ui::Authentication *ui;
+    MainWindow *mainWindow;
 };
 
 

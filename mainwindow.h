@@ -17,8 +17,10 @@ public:
 
 private slots:
     void on_pushButton_clicked();
+    void getLogin(QString Login);
 
 private:
     Ui::MainWindow *ui;
+    QString Login;
 };
 #endif // MAINWINDOW_H

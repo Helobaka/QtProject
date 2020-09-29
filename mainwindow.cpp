@@ -20,4 +20,9 @@ void MainWindow::on_pushButton_clicked()
     QMessageBox msgBox;
     msgBox.setText("Сложная вещь.");
     msgBox.exec();
+
+}
+
+void MainWindow::getLogin(QString Login){
+       this->Login = Login;
 }
