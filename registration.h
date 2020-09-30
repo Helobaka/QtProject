@@ -14,6 +14,14 @@ public:
     explicit Registration(QWidget *parent=0);
     ~Registration();
 
+signals:
+    void callBack();
+
+private slots:
+    void on_callBack_clicked();
+
+    void on_register_2_clicked();
+
 private:
     Ui::Registration *ui;
 };

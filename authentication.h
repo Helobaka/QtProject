@@ -2,6 +2,7 @@
 #define AUTHENTICATION_H
 
 #include "mainwindow.h"
+#include "registration.h"
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -19,13 +20,17 @@ signals:
     void sendLogin(QString Login);
 
 private slots:
+
+    void callBack();
+
     void on_BtnLogin_clicked();
 
     void on_Registration_clicked();
 
 private:
     Ui::Authentication *ui;
-    MainWindow *mainWindow;
+    MainWindow* mainWindow;
+    Registration* registration;
 };
 
 
