@@ -11,16 +11,19 @@ SOURCES += \
     authentication.cpp \
     databasepsql.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    registration.cpp
 
 HEADERS += \
     authentication.h \
     databasepsql.h \
-    mainwindow.h
+    mainwindow.h \
+    registration.h
 
 FORMS += \
     authentication.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    registration.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

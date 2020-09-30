@@ -21,6 +21,8 @@ signals:
 private slots:
     void on_BtnLogin_clicked();
 
+    void on_Registration_clicked();
+
 private:
     Ui::Authentication *ui;
     MainWindow *mainWindow;

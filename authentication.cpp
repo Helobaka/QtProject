@@ -66,3 +66,8 @@ void Authentication::on_BtnLogin_clicked()
     msgBox.exec();
     db.close();
 }
+
+void Authentication::on_Registration_clicked()
+{
+
+}
