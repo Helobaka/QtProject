@@ -9,6 +9,7 @@ CONFIG += c++11
 
 SOURCES += \
     authentication.cpp \
+    bankcard.cpp \
     databasepsql.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -16,12 +17,14 @@ SOURCES += \
 
 HEADERS += \
     authentication.h \
+    bankcard.h \
     databasepsql.h \
     mainwindow.h \
     registration.h
 
 FORMS += \
     authentication.ui \
+    bankcard.ui \
     mainwindow.ui \
     registration.ui
 

@@ -1,6 +1,7 @@
 #ifndef REGISTRATION_H
 #define REGISTRATION_H
 
+#include "bankcard.h"
 #include <QWidget>
 #include <QValidator>
 
@@ -16,16 +17,22 @@ public:
     ~Registration();
 
 signals:
-    void callBack();
+    void callBackRegistration();
 
 private slots:
     void on_callBack_clicked();
 
     void on_register_2_clicked();
 
+    void on_AddCard_clicked();
+
+    void callBackBankCard(QSqlRecord Record);
+
 private:
     Ui::Registration *ui;
     QRegExpValidator *phone_validator, *login_validator, *name_validator, *surname_validator, *patronymic_validator, *password_validator;
+    BankCard* bankCard;
+    QSqlRecord bankCardRecord;
 };
 
 #endif // REGISTRATION_H

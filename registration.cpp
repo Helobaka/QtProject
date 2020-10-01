@@ -36,7 +36,7 @@ Registration::~Registration()
 
 void Registration::on_callBack_clicked()
 {
-    this->callBack();
+    this->callBackRegistration();
     this->close();
 }
 
@@ -135,7 +135,37 @@ void Registration::on_register_2_clicked()
         }else{
             msgBox.setText("Ошибка!");
         }
+
+        bankCardRecord.setValue("login", Login);
+        model->setTable("cards");
+        model->insertRecord(-1, bankCardRecord);
+        model->submitAll();
         msgBox.exec();
     }
 
+}
+
+void Registration::on_AddCard_clicked()
+{
+    this->hide();
+    this->bankCard = new BankCard();
+    connect(bankCard, SIGNAL(callBackBankCard(QSqlRecord)), this, SLOT(callBackBankCard(QSqlRecord)));
+    bankCard->show();
+}
+
+
+void Registration::callBackBankCard(QSqlRecord Record)
+{
+    bankCardRecord = Record;
+
+    this->show();
+
+//    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
+//    QSqlDatabase db = dbSingle->getDB();
+//    QSqlTableModel* model = new QSqlTableModel(this, db);
+
+//    Record.setValue("login", "qwerty");
+//    model->setTable("cards");
+//    model->insertRecord(-1, Record);
+//    model->submitAll();
 }

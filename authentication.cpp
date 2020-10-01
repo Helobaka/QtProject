@@ -64,10 +64,10 @@ void Authentication::on_Registration_clicked()
 {
     hide();
     registration = new Registration();
-    connect(registration, SIGNAL(callBack()), this, SLOT(callBack()));
+    connect(registration, SIGNAL(callBackRegistration()), this, SLOT(callBackRegistration()));
     registration->show();
 }
 
-void Authentication::callBack(){
+void Authentication::callBackRegistration(){
     show();
 }

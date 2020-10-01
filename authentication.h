@@ -21,7 +21,7 @@ signals:
 
 private slots:
 
-    void callBack();
+    void callBackRegistration();
 
     void on_BtnLogin_clicked();
 
