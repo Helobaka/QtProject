@@ -2,6 +2,7 @@
 #define REGISTRATION_H
 
 #include <QWidget>
+#include <QValidator>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Registration; }
@@ -24,6 +25,7 @@ private slots:
 
 private:
     Ui::Registration *ui;
+    QRegExpValidator *phone_validator, *login_validator, *name_validator, *surname_validator, *patronymic_validator, *password_validator;
 };
 
 #endif // REGISTRATION_H
