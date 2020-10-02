@@ -27,6 +27,8 @@ Registration::Registration(QWidget *parent):
     ui->Name->setValidator(name_validator);
     ui->Patronymic->setValidator(patronymic_validator);
     ui->Surname->setValidator(surname_validator);
+
+    ui->checkCard->hide();
 }
 
 Registration::~Registration()
@@ -36,7 +38,7 @@ Registration::~Registration()
 
 void Registration::on_callBack_clicked()
 {
-    this->callBackRegistration();
+    emit callBackRegistration();
     this->close();
 }
 
@@ -45,7 +47,7 @@ void Registration::on_register_2_clicked()
     QMessageBox msgBox;
 
     int pos = 0;
-    bool validate = true;
+    bool isValid = true;
 
     DataBasePSQL* dbSingle = DataBasePSQL::Instance();
     QSqlDatabase db = dbSingle->getDB();
@@ -67,11 +69,11 @@ void Registration::on_register_2_clicked()
 
     if(model->rowCount()==1){
         ui->ErrorLogin->setText("*Такой логин существует");
-        validate=false;
+        isValid=false;
     }else{
         if(login_validator->validate(Login, pos) != QValidator::Acceptable){
             ui->ErrorLogin->setText("*Некорректный логин");
-            validate=false;
+            isValid=false;
         }else{
             ui->ErrorLogin->setText("");
         }
@@ -79,48 +81,48 @@ void Registration::on_register_2_clicked()
 
     if(password_validator->validate(Password, pos) != QValidator::Acceptable){
         ui->ErrorPassword->setText("*Некорректный пароль");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorPassword->setText("");
     }
 
     if(Password!=ConfirmPassword){
         ui->ErrorConfirmPassword->setText("*Пароли не совпадают");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorConfirmPassword->setText("");
     }
 
     if(name_validator->validate(Name, pos) != QValidator::Acceptable){
         ui->ErrorName->setText("*Введите имя");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorName->setText("");
     }
 
     if(surname_validator->validate(Surname, pos) != QValidator::Acceptable){
         ui->ErrorSurname->setText("*Введите фамилию");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorSurname->setText("");
     }
 
     if(patronymic_validator->validate(Patronymic, pos) != QValidator::Acceptable){
         ui->ErrorPatronymic->setText("*Введите отчество");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorPatronymic->setText("");
     }
 
     if(phone_validator->validate(Phone, pos) != QValidator::Acceptable){
         ui->ErrorPhone->setText("*Некорректный номер");
-        validate=false;
+        isValid=false;
     }else{
         ui->ErrorPhone->setText("");
     }
 
 
-    if(validate){
+    if(isValid){
         newRecord.setValue("login", Login);
         newRecord.setValue("password", Password);
         newRecord.setValue("name", Name);
@@ -132,15 +134,20 @@ void Registration::on_register_2_clicked()
 
         if(model->submitAll()){
             msgBox.setText("Вы зарегистрировались!");
+            msgBox.exec();
+            if(ui->checkCard->isChecked()){
+                bankCardRecord.setValue("login", Login);
+                bankCardRecord.remove(bankCardRecord.indexOf("id_card"));
+                model->setTable("cards");
+                model->insertRecord(-1, bankCardRecord);
+                model->submitAll();
+            }
+            emit callBackRegistration();
+            this->close();
         }else{
             msgBox.setText("Ошибка!");
-        }
-
-        bankCardRecord.setValue("login", Login);
-        model->setTable("cards");
-        model->insertRecord(-1, bankCardRecord);
-        model->submitAll();
-        msgBox.exec();
+            msgBox.exec();
+        }    
     }
 
 }
@@ -150,6 +157,7 @@ void Registration::on_AddCard_clicked()
     this->hide();
     this->bankCard = new BankCard();
     connect(bankCard, SIGNAL(callBackBankCard(QSqlRecord)), this, SLOT(callBackBankCard(QSqlRecord)));
+    connect(bankCard, SIGNAL(callBackCancel()), this, SLOT(callBackCancel()));
     bankCard->show();
 }
 
@@ -157,7 +165,13 @@ void Registration::on_AddCard_clicked()
 void Registration::callBackBankCard(QSqlRecord Record)
 {
     bankCardRecord = Record;
+    ui->checkCard->setChecked(true);
 
+    bankCardRecord.value("number");
+
+    ui->CardNumber->setText(bankCardRecord.value("number").toString().left(4).insert(4,"XXXXXXXXXXXX"));
+
+    ui->checkCard->show();
     this->show();
 
 //    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
@@ -168,4 +182,11 @@ void Registration::callBackBankCard(QSqlRecord Record)
 //    model->setTable("cards");
 //    model->insertRecord(-1, Record);
 //    model->submitAll();
+}
+
+void  Registration::callBackCancel()
+{
+    ui->checkCard->setChecked(false);
+    ui->CardNumber->setText("");
+    this->show();
 }

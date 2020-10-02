@@ -28,6 +28,8 @@ private slots:
 
     void callBackBankCard(QSqlRecord Record);
 
+    void callBackCancel();
+
 private:
     Ui::Registration *ui;
     QRegExpValidator *phone_validator, *login_validator, *name_validator, *surname_validator, *patronymic_validator, *password_validator;

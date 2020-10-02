@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QSqlRecord>
+#include <QRegExpValidator>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class BankCard; }
@@ -22,8 +23,11 @@ signals:
 private slots:
     void on_AddCard_clicked();
 
+    void on_Cancel_clicked();
+
 private:
     Ui::BankCard *ui;
+    QRegExpValidator  *name_validator, *surname_validator, *number_validator, *month_validator, *year_validator, *cvv_validator;
 
 };
 
