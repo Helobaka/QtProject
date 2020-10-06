@@ -63,7 +63,7 @@ void Registration::on_register_2_clicked()
 
     QString filter = QString("login='%1'").arg(Login);
     model->setTable("people");
-    QSqlRecord newRecord=model->record();
+    QSqlRecord newRecord = model->record();
     model->setFilter(filter);
     model->select();
 

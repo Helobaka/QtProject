@@ -4,6 +4,7 @@
 #include "payment.h"
 #include <QMainWindow>
 #include <QSqlRelationalTableModel>
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,10 +26,20 @@ private slots:
 
     void on_payConfirm_clicked();
 
+    void backPayment(QString newScore);
+
+    void cancelPayment();
+
+    void on_ExitButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString Login;
+    QString userID;
     QSqlTableModel *model;
     Payment *payment;
+    QStandardItemModel* viewModel;
+
+    void viewOperations();
 };
 #endif // MAINWINDOW_H

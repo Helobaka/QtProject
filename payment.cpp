@@ -2,6 +2,10 @@
 #include "ui_payment.h"
 #include <QSqlRelationalTableModel>
 #include <QSqlRecord>
+#include <QSqlField>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QDateTime>
 
 Payment::Payment(QWidget *parent):
     QWidget(parent),
@@ -9,6 +13,11 @@ Payment::Payment(QWidget *parent):
 {
     ui->setupUi(this);
     ui->AddCard->hide();
+    hidePay();
+
+    score_validator = new  QRegExpValidator(QRegExp("^[1-9][0-9]*$"));
+
+    ui->PayEdit->setValidator(score_validator);
 }
 
 Payment::~Payment(){
@@ -21,7 +30,7 @@ void Payment::confirmation(QSqlTableModel *model){
 
     QString Phone = model->record(0).value("phone").toString();
     this->Login = model->record(0).value("login").toString();
-    QString userId = model->record(0).value("user_id").toString();
+    this->userId = model->record(0).value("user_id").toString();
 
     ui->PhoneLabel->setText("Номер телефона: " + Phone);
 
@@ -30,13 +39,15 @@ void Payment::confirmation(QSqlTableModel *model){
     this->model->setFilter(filter);
     this->model->select();
 
-    QString cardNumber = model->record(0).value("number").toString();
+    this->cardNumber = model->record(0).value("number").toString();
 
     if(model->rowCount() >= 1){
-        ui->CardLabel->setText("Номер карты: " + cardNumber);
+        ui->CardLabel->setText("Номер карты: " + this->cardNumber);
+        showPay();
     }else{
         ui->CardLabel->setText("Номер карты: у вас не привязана карта");
         ui->AddCard->show();
+        hidePay();
     }
 }
 
@@ -57,12 +68,92 @@ void Payment::callBackBankCard(QSqlRecord Record)
     model->setTable("cards");
     model->insertRecord(-1, bankCardRecord);
     model->submitAll();
-    ui->CardLabel->setText("Номер карты: " + bankCardRecord.value("number").toString());
+    this->cardNumber = bankCardRecord.value("number").toString();
+    ui->CardLabel->setText("Номер карты: " + this->cardNumber);
     ui->AddCard->hide();
+    showPay();
     this->show();
 }
 
 void  Payment::callBackCancel()
 {
     this->show();
+}
+
+void Payment::hidePay()
+{
+    ui->PayEdit->hide();
+    ui->PayLabel->hide();
+    ui->PayButton->hide();
+}
+
+void Payment::showPay()
+{
+    ui->PayEdit->show();
+    ui->PayLabel->show();
+    ui->PayButton->show();
+}
+
+void Payment::on_PayButton_clicked()
+{
+    QString Score = ui->PayEdit->text();
+    int pos = 0;
+
+    if(score_validator->validate(Score,pos) != QValidator::Acceptable)
+    {
+        ui->PayErrorLabel->setText("*Некорректное значение");
+    }
+    else
+    {
+       model->setTable("operations");
+       QSqlRecord operationRecord = model->record();
+       operationRecord.remove(operationRecord.indexOf("operation_id"));
+
+       QString datetime = QDateTime::currentDateTime().toString();
+
+       QJsonObject operationObj;
+       operationObj.insert("user_id", this->userId);
+       operationObj.insert("price", Score);
+       operationObj.insert("card_number", this->cardNumber);
+       operationObj.insert("datetime", datetime);
+
+       QJsonDocument operationDoc;
+       operationDoc.setObject(operationObj);
+
+       operationRecord.setValue("user_id", userId);
+       operationRecord.setValue("json", QString::fromStdString(operationDoc.toJson(QJsonDocument::Compact).toStdString()));
+
+       if(this->model->insertRecord(-1, operationRecord))
+       {
+
+           //Пополнение своего баланса
+
+           this->model->setTable("people");
+           QString filter = QString("user_id = '%1'").arg(userId);
+           this->model->setFilter(filter);
+           this->model->select();
+
+           QSqlRecord updateRecord =  this->model->record(0);
+
+           int oldScore = updateRecord.value("score").toInt();
+           QString newScore = QString::number(Score.toInt() + oldScore);
+
+           updateRecord.setValue("score", newScore);
+
+           this->model->setRecord(0, updateRecord);
+
+           if (this->model->submitAll())
+           {
+               emit backPayment(newScore);
+               this->close();
+           }
+       }
+
+    }
+}
+
+void Payment::on_CancelButton_clicked()
+{
+    emit cancelPayment();
+    this->close();
 }

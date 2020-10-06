@@ -4,6 +4,7 @@
 #include "bankcard.h"
 #include <QSqlRelationalTableModel>
 #include <QWidget>
+#include <QValidator>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Payment; }
@@ -26,12 +27,29 @@ private slots:
 
     void on_AddCard_clicked();
 
+    void on_PayButton_clicked();
+
+    void on_CancelButton_clicked();
+
+signals:
+    void on_payConfirm_clicked();
+
+    void backPayment(QString newScore);
+
+    void cancelPayment();
+
 private:
     Ui::Payment *ui;
     QSqlTableModel *model;
     BankCard *bankCard;
     QSqlRecord bankCardRecord;
     QString Login;
+    QString userId;
+    QString cardNumber;
+    QRegExpValidator *score_validator;
+
+    void hidePay();
+    void showPay();
 };
 
 #endif // PAYMENT_H

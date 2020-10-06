@@ -45,6 +45,7 @@ void Authentication::on_BtnLogin_clicked()
             mainWindow->show();
             emit sendLogin(login);
             this->close();
+//            this->~Authentication();
         }
         else{
             msgBox.setText("Не правильный пароль");
@@ -53,7 +54,7 @@ void Authentication::on_BtnLogin_clicked()
        msgBox.setText("Такого логина нет");
     }
 
-    ui->tableView->setModel(model);
+//    ui->tableView->setModel(model);
 
 
     msgBox.exec();

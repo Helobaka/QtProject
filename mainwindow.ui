@@ -6,35 +6,48 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>699</width>
-    <height>489</height>
+    <width>688</width>
+    <height>480</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>130</y>
-      <width>141</width>
-      <height>16</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="payConfirm">
     <property name="geometry">
      <rect>
-      <x>200</x>
-      <y>130</y>
-      <width>75</width>
+      <x>20</x>
+      <y>120</y>
+      <width>141</width>
       <height>23</height>
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Пополнить баланс</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="ExitButton">
+    <property name="geometry">
+     <rect>
+      <x>580</x>
+      <y>120</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Выйти</string>
+    </property>
+   </widget>
+   <widget class="QTableView" name="tableView">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>170</y>
+      <width>301</width>
+      <height>211</height>
+     </rect>
     </property>
    </widget>
    <widget class="QWidget" name="">
@@ -91,7 +104,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>699</width>
+     <width>688</width>
      <height>21</height>
     </rect>
    </property>
