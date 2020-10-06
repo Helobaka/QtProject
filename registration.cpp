@@ -129,6 +129,8 @@ void Registration::on_register_2_clicked()
         newRecord.setValue("surname", Surname);
         newRecord.setValue("patronymic", Patronymic);
         newRecord.setValue("phone", Phone);
+        newRecord.setValue("score", 0);
+        newRecord.remove(newRecord.indexOf("user_id"));
 
         model->insertRecord(-1,newRecord);
 

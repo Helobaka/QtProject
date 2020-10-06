@@ -29,7 +29,7 @@ private slots:
 
 private:
     Ui::Authentication *ui;
-    MainWindow* mainWindow;
+    MainWindow *mainWindow;
     Registration* registration;
 };
 

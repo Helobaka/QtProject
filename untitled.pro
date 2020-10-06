@@ -13,6 +13,7 @@ SOURCES += \
     databasepsql.cpp \
     main.cpp \
     mainwindow.cpp \
+    payment.cpp \
     registration.cpp
 
 HEADERS += \
@@ -20,12 +21,14 @@ HEADERS += \
     bankcard.h \
     databasepsql.h \
     mainwindow.h \
+    payment.h \
     registration.h
 
 FORMS += \
     authentication.ui \
     bankcard.ui \
     mainwindow.ui \
+    payment.ui \
     registration.ui
 
 # Default rules for deployment.
