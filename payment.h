@@ -19,7 +19,8 @@ public:
 
 private slots:
 
-    void confirmation(QSqlTableModel *model);
+    //void confirmation(QSqlTableModel *model);
+    void confirmation(QSqlTableModel *model, QString  UserID, QString FriendID);
 
     void callBackBankCard(QSqlRecord Record);
 
@@ -45,6 +46,7 @@ private:
     QSqlRecord bankCardRecord;
     QString Login;
     QString userId;
+    QString friendId;
     QString cardNumber;
     QRegExpValidator *score_validator;
 

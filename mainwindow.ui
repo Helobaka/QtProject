@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>688</width>
-    <height>480</height>
+    <width>738</width>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Личный кабинет</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="payConfirm">
@@ -45,12 +45,12 @@
      <rect>
       <x>20</x>
       <y>170</y>
-      <width>301</width>
+      <width>431</width>
       <height>211</height>
      </rect>
     </property>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -98,13 +98,108 @@
      </item>
     </layout>
    </widget>
+   <widget class="QListView" name="listView">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>170</y>
+      <width>261</width>
+      <height>211</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="addFriend">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>390</y>
+      <width>261</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Добавить контакт</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="friendName">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>440</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="friendPhone">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>440</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="okFriend">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>470</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Подтвердить</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="cancelFriend">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>470</y>
+      <width>111</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Отмена</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelPhone">
+    <property name="geometry">
+     <rect>
+      <x>600</x>
+      <y>420</y>
+      <width>131</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Телефон (+7ХХХХХХХХХХ)</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelName">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>420</y>
+      <width>47</width>
+      <height>13</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Имя</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>688</width>
+     <width>738</width>
      <height>21</height>
     </rect>
    </property>

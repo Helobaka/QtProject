@@ -19,7 +19,8 @@ public:
     ~MainWindow();
 
 signals:
-    void confirmation(QSqlTableModel *model);
+    //void confirmation(QSqlTableModel *model);
+    void confirmation(QSqlTableModel *, QString, QString);
 
 private slots:
     void getLogin(QString Login);
@@ -32,6 +33,14 @@ private slots:
 
     void on_ExitButton_clicked();
 
+    void on_okFriend_clicked();
+
+    void on_listView_doubleClicked(const QModelIndex &index);
+
+    void on_addFriend_clicked();
+
+    void on_cancelFriend_clicked();
+
 private:
     Ui::MainWindow *ui;
     QString Login;
@@ -39,7 +48,12 @@ private:
     QSqlTableModel *model;
     Payment *payment;
     QStandardItemModel* viewModel;
+    QStandardItemModel* viewNotebook;
+    QRegExpValidator *phone_validator, *name_validator;
 
+    void showFriend();
+    void hideFriend();
     void viewOperations();
+    void viewNotebookFriend();
 };
 #endif // MAINWINDOW_H

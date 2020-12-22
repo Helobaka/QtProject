@@ -25,14 +25,17 @@ Payment::~Payment(){
 }
 
 
-void Payment::confirmation(QSqlTableModel *model){
+void Payment::confirmation(QSqlTableModel *model, QString  UserID, QString FriendID){
     this->model = model;
+//    this->model->setTable("people");
+//    QString filter = QString("user_id='%1'").arg(UserID);
+//    this->model->select();
 
     QString Phone = model->record(0).value("phone").toString();
     this->Login = model->record(0).value("login").toString();
-    this->userId = model->record(0).value("user_id").toString();
+    //this->userId = model->record(0).value("user_id").toString();
 
-    ui->PhoneLabel->setText("Номер телефона: " + Phone);
+    //ui->PhoneLabel->setText("Номер телефона: " + Phone);
 
     this->model->setTable("cards");
     QString filter = QString("login='%1'").arg(this->Login);
@@ -49,6 +52,16 @@ void Payment::confirmation(QSqlTableModel *model){
         ui->AddCard->show();
         hidePay();
     }
+
+    this->model = model;
+    this->model->setTable("people");
+    filter = QString("user_id='%1'").arg(FriendID);
+    this->model->setFilter(filter);
+    this->model->select();
+    Phone = model->record(0).value("phone").toString();
+    this->userId = UserID;
+    this->friendId = FriendID;
+    ui->PhoneLabel->setText("Номер телефона получателя: " + Phone);
 }
 
 void Payment::on_AddCard_clicked()
@@ -129,7 +142,7 @@ void Payment::on_PayButton_clicked()
            //Пополнение своего баланса
 
            this->model->setTable("people");
-           QString filter = QString("user_id = '%1'").arg(userId);
+           QString filter = QString("user_id = '%1'").arg(friendId);
            this->model->setFilter(filter);
            this->model->select();
 
@@ -144,6 +157,9 @@ void Payment::on_PayButton_clicked()
 
            if (this->model->submitAll())
            {
+               if(friendId!=userId)
+               emit backPayment("");
+               else
                emit backPayment(newScore);
                this->close();
            }

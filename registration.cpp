@@ -136,6 +136,7 @@ void Registration::on_register_2_clicked()
 
         if(model->submitAll()){
             msgBox.setText("Вы зарегистрировались!");
+            msgBox.setAccessibleName("ацуа");
             msgBox.exec();
             if(ui->checkCard->isChecked()){
                 bankCardRecord.setValue("login", Login);

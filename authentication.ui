@@ -6,28 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>505</width>
-    <height>457</height>
+    <width>262</width>
+    <height>161</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Авторизация</string>
   </property>
-  <widget class="QTableView" name="tableView">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>200</y>
-     <width>256</width>
-     <height>192</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>80</y>
+     <x>40</x>
+     <y>20</y>
      <width>180</width>
      <height>108</height>
     </rect>

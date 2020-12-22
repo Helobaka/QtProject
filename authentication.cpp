@@ -26,6 +26,7 @@ Authentication::~Authentication()
 void Authentication::on_BtnLogin_clicked()
 {
     QMessageBox msgBox;
+    msgBox.setWindowTitle(" ");
 
     DataBasePSQL* dbSingle = DataBasePSQL::Instance();
     QSqlDatabase db = dbSingle->getDB();
@@ -48,7 +49,7 @@ void Authentication::on_BtnLogin_clicked()
 //            this->~Authentication();
         }
         else{
-            msgBox.setText("Не правильный пароль");
+            msgBox.setText("Неправильный пароль");
         }
     }else {
        msgBox.setText("Такого логина нет");
