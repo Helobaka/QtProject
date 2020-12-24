@@ -5,6 +5,8 @@
 #include <QSqlRelationalTableModel>
 #include <QWidget>
 #include <QValidator>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Payment; }
@@ -22,7 +24,7 @@ private slots:
     //void confirmation(QSqlTableModel *model);
     void confirmation(QSqlTableModel *model, QString  UserID, QString FriendID);
 
-    void callBackBankCard(QSqlRecord Record);
+    void callBackBankCard(QJsonObject Record);
 
     void callBackCancel();
 
@@ -31,6 +33,10 @@ private slots:
     void on_PayButton_clicked();
 
     void on_CancelButton_clicked();
+
+    void sltDoPaymentResult(QJsonObject result);
+
+    void sltPayResult(QJsonObject);
 
 signals:
     void on_payConfirm_clicked();
@@ -41,11 +47,15 @@ signals:
 
     void sgnDoPayment(QJsonDocument);
 
+    void sgnAddCard(QJsonDocument);
+
+    void sgnPay(QJsonDocument);
+
 private:
     Ui::Payment *ui;
     QSqlTableModel *model;
     BankCard *bankCard;
-    QSqlRecord bankCardRecord;
+    QJsonObject bankCardRecord;
     QString Login;
     QString userId;
     QString friendId;

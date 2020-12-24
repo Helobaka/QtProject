@@ -37,7 +37,11 @@ void  TcpClient::sockReady(){
             sgnGetPeopleResult(operation);
         }else if(operation["type"].toString() == "doPayment"){
             sgnDoPaymentResult(operation);
-        }else  if(data.count()  >  0){
+        }else if(operation["type"].toString() == "pay"){
+            sgnPayResult(operation);
+        }else if(operation["type"].toString() == "addFriend"){
+            sgnAddFriendResult(operation);
+        }else   if(data.count()  >  0){
             sockReady();
         }
 //    }
@@ -67,5 +71,13 @@ void TcpClient::sltGetPeople(QJsonDocument doc){
 }
 
 void TcpClient::sltDoPayment(QJsonDocument doc){
+    socket->write(QString::fromStdString(doc.toJson(QJsonDocument::Compact).toStdString()).toUtf8());
+}
+
+void TcpClient::sltPay(QJsonDocument doc){
+    socket->write(QString::fromStdString(doc.toJson(QJsonDocument::Compact).toStdString()).toUtf8());
+}
+
+void TcpClient::sltAddFriend(QJsonDocument doc){
     socket->write(QString::fromStdString(doc.toJson(QJsonDocument::Compact).toStdString()).toUtf8());
 }

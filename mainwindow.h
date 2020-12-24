@@ -21,12 +21,15 @@ public:
     void  setClient(TcpClient* client);
 
     TcpClient* client;
+    int countT = 0;
 
 signals:
     //void confirmation(QSqlTableModel *model);
     void confirmation(QSqlTableModel *, QString, QString);
 
     void sgnGetPeople(QJsonDocument);
+
+    void sgnAddFriend(QJsonDocument);
 
 private slots:
     void getLogin(QString Login);
@@ -49,7 +52,7 @@ private slots:
 
     void sltGetPeopleResult(QJsonObject);
 
-    void sltDoPaymentResult(QJsonObject)
+    void sltAddFriendResult(QJsonObject);
 
 private:
     Ui::MainWindow *ui;

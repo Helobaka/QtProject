@@ -37,62 +37,89 @@ void Payment::confirmation(QSqlTableModel *model, QString  UserID, QString Frien
 
     sgnDoPayment(operationDoc);
 
+    this->userId = UserID;
+    this->friendId = FriendID;
 
 
-    this->model = model;
 
-    QString Phone = model->record(0).value("phone").toString();
-    this->Login = model->record(0).value("login").toString();
+//    this->model = model;
 
-    this->model->setTable("cards");
-    QString filter = QString("login='%1'").arg(this->Login);
-    this->model->setFilter(filter);
-    this->model->select();
+//    QString Phone = model->record(0).value("phone").toString();
+//    this->Login = model->record(0).value("login").toString();
 
-    this->cardNumber = model->record(0).value("number").toString();
+//    this->model->setTable("cards");
+//    QString filter = QString("login='%1'").arg(this->Login);
+//    this->model->setFilter(filter);
+//    this->model->select();
 
-    if(model->rowCount() >= 1){
-        ui->CardLabel->setText("Номер карты: " + this->cardNumber);
+//    this->cardNumber = model->record(0).value("number").toString();
+
+//    if(model->rowCount() >= 1){
+//        ui->CardLabel->setText("Номер карты: " + this->cardNumber);
+//        showPay();
+//    }else{
+//        ui->CardLabel->setText("Номер карты: у вас не привязана карта");
+//        ui->AddCard->show();
+//        hidePay();
+//    }
+
+//    this->model = model;
+//    this->model->setTable("people");
+//    filter = QString("user_id='%1'").arg(FriendID);
+//    this->model->setFilter(filter);
+//    this->model->select();
+//    Phone = model->record(0).value("phone").toString();
+//    this->userId = UserID;
+//    this->friendId = FriendID;
+//    ui->PhoneLabel->setText("Номер телефона получателя: " + Phone);
+}
+
+void Payment::sltDoPaymentResult(QJsonObject result){
+
+    cardNumber = result["card_number"].toString();
+    QString Phone = result["friend_phone"].toString();
+    Login = result["login"].toString();
+
+    if(cardNumber != ""){
+        ui->CardLabel->setText("Номер карты: " + cardNumber);
         showPay();
     }else{
         ui->CardLabel->setText("Номер карты: у вас не привязана карта");
         ui->AddCard->show();
         hidePay();
     }
-
-    this->model = model;
-    this->model->setTable("people");
-    filter = QString("user_id='%1'").arg(FriendID);
-    this->model->setFilter(filter);
-    this->model->select();
-    Phone = model->record(0).value("phone").toString();
-    this->userId = UserID;
-    this->friendId = FriendID;
     ui->PhoneLabel->setText("Номер телефона получателя: " + Phone);
-}
-
-void Payment::sltDoPaymentResult(QJsonObject result){
-
 }
 
 void Payment::on_AddCard_clicked()
 {
     this->hide();
     this->bankCard = new BankCard();
-    connect(bankCard, SIGNAL(callBackBankCard(QSqlRecord)), this, SLOT(callBackBankCard(QSqlRecord)));
+    connect(bankCard, SIGNAL(callBackBankCard(QJsonObject)), this, SLOT(callBackBankCard(QJsonObject)));
     connect(bankCard, SIGNAL(callBackCancel()), this, SLOT(callBackCancel()));
     bankCard->show();
 }
 
-void Payment::callBackBankCard(QSqlRecord Record)
+void Payment::callBackBankCard(QJsonObject Record)
 {
+
     bankCardRecord = Record;
-    bankCardRecord.setValue("login", this->Login);
-    bankCardRecord.remove(bankCardRecord.indexOf("id_card"));
-    model->setTable("cards");
-    model->insertRecord(-1, bankCardRecord);
-    model->submitAll();
-    this->cardNumber = bankCardRecord.value("number").toString();
+
+    bankCardRecord.insert("type", "addCard");
+    bankCardRecord.insert("login", Login);
+    QJsonDocument operationDoc;
+    operationDoc.setObject(bankCardRecord);
+    sgnAddCard(operationDoc);
+
+    this->show();
+
+//    bankCardRecord = Record;
+//    bankCardRecord.setValue("login", this->Login);
+//    bankCardRecord.remove(bankCardRecord.indexOf("id_card"));
+//    model->setTable("cards");
+//    model->insertRecord(-1, bankCardRecord);
+//    model->submitAll();
+    this->cardNumber = bankCardRecord["number"].toString();
     ui->CardLabel->setText("Номер карты: " + this->cardNumber);
     ui->AddCard->hide();
     showPay();
@@ -129,54 +156,82 @@ void Payment::on_PayButton_clicked()
     }
     else
     {
-       model->setTable("operations");
-       QSqlRecord operationRecord = model->record();
-       operationRecord.remove(operationRecord.indexOf("operation_id"));
+        QJsonObject payObj;
+        payObj.insert("friend_id", this->friendId);
+        payObj.insert("user_id", this->userId);
+        payObj.insert("price", Score);
 
-       QString datetime = QDateTime::currentDateTime().toString();
+        QJsonObject operationObj;
+        QString datetime = QDateTime::currentDateTime().toString();
+        operationObj.insert("user_id", this->userId);
+        operationObj.insert("price", Score);
+        operationObj.insert("card_number", this->cardNumber);
+        operationObj.insert("datetime", datetime);
 
-       QJsonObject operationObj;
-       operationObj.insert("user_id", this->userId);
-       operationObj.insert("price", Score);
-       operationObj.insert("card_number", this->cardNumber);
-       operationObj.insert("datetime", datetime);
+        QJsonObject endObj;
 
-       QJsonDocument operationDoc;
-       operationDoc.setObject(operationObj);
+        endObj.insert("friend", payObj);
+        endObj.insert("json", operationObj);
+        endObj.insert("type", "pay");
 
-       operationRecord.setValue("user_id", userId);
-       operationRecord.setValue("json", QString::fromStdString(operationDoc.toJson(QJsonDocument::Compact).toStdString()));
+        QJsonDocument operationDoc;
+        operationDoc.setObject(endObj);
 
-       if(this->model->insertRecord(-1, operationRecord))
-       {
+        sgnPay(operationDoc);
 
-           //Пополнение своего баланса
+//       model->setTable("operations");
+//       QSqlRecord operationRecord = model->record();
+//       operationRecord.remove(operationRecord.indexOf("operation_id"));
 
-           this->model->setTable("people");
-           QString filter = QString("user_id = '%1'").arg(friendId);
-           this->model->setFilter(filter);
-           this->model->select();
+//       QString datetime = QDateTime::currentDateTime().toString();
 
-           QSqlRecord updateRecord =  this->model->record(0);
+//       QJsonObject operationObj;
+//       operationObj.insert("user_id", this->userId);
+//       operationObj.insert("price", Score);
+//       operationObj.insert("card_number", this->cardNumber);
+//       operationObj.insert("datetime", datetime);
 
-           int oldScore = updateRecord.value("score").toInt();
-           QString newScore = QString::number(Score.toInt() + oldScore);
+//       QJsonDocument operationDoc;
+//       operationDoc.setObject(operationObj);
 
-           updateRecord.setValue("score", newScore);
+//       operationRecord.setValue("user_id", userId);
+//       operationRecord.setValue("json", QString::fromStdString(operationDoc.toJson(QJsonDocument::Compact).toStdString()));
 
-           this->model->setRecord(0, updateRecord);
+//       if(this->model->insertRecord(-1, operationRecord))
+//       {
 
-           if (this->model->submitAll())
-           {
-               if(friendId!=userId)
-               emit backPayment("");
-               else
-               emit backPayment(newScore);
-               this->close();
-           }
-       }
+//           //Пополнение своего баланса
+
+//           this->model->setTable("people");
+//           QString filter = QString("user_id = '%1'").arg(friendId);
+//           this->model->setFilter(filter);
+//           this->model->select();
+
+//           QSqlRecord updateRecord =  this->model->record(0);
+
+//           int oldScore = updateRecord.value("score").toInt();
+//           QString newScore = QString::number(Score.toInt() + oldScore);
+
+//           updateRecord.setValue("score", newScore);
+
+//           this->model->setRecord(0, updateRecord);
+
+//           if (this->model->submitAll())
+//           {
+//               if(friendId!=userId)
+//               emit backPayment("");
+//               else
+//               emit backPayment(newScore);
+//               this->close();
+//           }
+//       }
 
     }
+}
+
+void Payment::sltPayResult(QJsonObject obj){
+    emit backPayment(obj["score"].toString());
+    this->close();
 }
 
 void Payment::on_CancelButton_clicked()

@@ -28,8 +28,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(confirmation(QSqlTableModel*, QString, QString)), payment, SLOT(confirmation(QSqlTableModel*, QString, QString)));
     connect(payment, SIGNAL(backPayment(QString)), this, SLOT(backPayment(QString)));
     connect(payment, SIGNAL(cancelPayment()), this, SLOT(cancelPayment()));
-    connect(payment, SIGNAL(sgnDoPayment(QJsonDocument)), client, SLOT(sltDoPayment(QJsonDocument)));
-    connect(client, SIGNAL(sgnDoPaymentResult(QJsonObject)), payment, SLOT(sltDoPaymentResult(QJsonObject)));
 
 //    connect(client, SIGNAL(sgnGetPeopleResult(QJsonObject)), this, SLOT(sltGetPeopleResult(QJsonObject)));
 //    connect(this, SIGNAL(sgnGetPeople(QJsonDocument)), client, SLOT(sltGetPeople(QJsonDocument)));
@@ -46,6 +44,14 @@ void  MainWindow::setClient(TcpClient* client){
     this->client = client;
     connect(client, SIGNAL(sgnGetPeopleResult(QJsonObject)), this, SLOT(sltGetPeopleResult(QJsonObject)));
     connect(this, SIGNAL(sgnGetPeople(QJsonDocument)), client, SLOT(sltGetPeople(QJsonDocument)));
+    connect(this, SIGNAL(sgnAddFriend(QJsonDocument)), client, SLOT(sltAddFriend(QJsonDocument)));
+    connect(client, SIGNAL(sgnAddFriendResult(QJsonObject)), this, SLOT(sltAddFriendResult(QJsonObject)));
+
+    connect(payment, SIGNAL(sgnDoPayment(QJsonDocument)), client, SLOT(sltDoPayment(QJsonDocument)));
+    connect(client, SIGNAL(sgnDoPaymentResult(QJsonObject)), payment, SLOT(sltDoPaymentResult(QJsonObject)));
+    connect(payment, SIGNAL(sgnAddCard(QJsonDocument)), client, SLOT(sltAddCard(QJsonDocument)));
+    connect(payment, SIGNAL(sgnPay(QJsonDocument)), client, SLOT(sltPay(QJsonDocument)));
+    connect(client, SIGNAL(sgnPayResult(QJsonObject)), payment, SLOT(sltPayResult(QJsonObject)));
 }
 
 void  MainWindow::sltGetPeopleResult(QJsonObject result){
@@ -60,6 +66,8 @@ void  MainWindow::sltGetPeopleResult(QJsonObject result){
     QString Patronymic = people["patronymic"].toString();
     QString Score = people["score"].toString();
     QString Phone = people["phone"].toString();
+
+    userID = people["user_id"].toString();
 
     ui->NameLabel->setText("Здравствуйте! " + Surname + " " + Name + " " + Patronymic);
     ui->ScoreLabel->setText("Ваш баланс: " + Score);
@@ -86,13 +94,17 @@ void  MainWindow::sltGetPeopleResult(QJsonObject result){
     ////////////////////////////////////////////////////
     viewNotebook = new QStandardItemModel();
 
+    rowCount = friends.count();
 
      for (int i = 0; i < rowCount; i++){
          viewNotebook->setItem(i, 0, new QStandardItem(friends.at(i)["friend_name"].toString() + "\n" +friends.at(i)["friend_phone"].toString()));
          viewNotebook->setItem(i, 1, new QStandardItem(friends.at(i)["friend_id"].toString()));
      }
      ui->listView->setModel(viewNotebook);
+
+     countT = rowCount;
 }
+
 
 void MainWindow::getLogin(QString Login){
 //    this->Login = Login;
@@ -185,10 +197,10 @@ void MainWindow::viewNotebookFriend(){
 void MainWindow::on_payConfirm_clicked()
 {
     this->hide();
-    this->model->setTable("people");
-    QString filter = QString("login='%1'").arg(this->Login);
-    this->model->setFilter(filter);
-    this->model->select();
+//    this->model->setTable("people");
+//    QString filter = QString("login='%1'").arg(this->Login);
+//    this->model->setFilter(filter);
+//    this->model->select();
     emit confirmation(this->model, userID, userID);
     payment->show();
 }
@@ -196,7 +208,7 @@ void MainWindow::on_payConfirm_clicked()
 void MainWindow::backPayment(QString newScore){
     if (newScore != "")
     ui->ScoreLabel->setText("Ваш баланс: " + newScore);
-    viewOperations();
+    //viewOperations();
     this->show();
 }
 
@@ -234,31 +246,44 @@ void MainWindow::on_okFriend_clicked()
         }
     }
     if(isValid){
-        this->model->setTable("people");
-        QString filter = QString("phone='%1'").arg(frend_phone);
-        this->model->setFilter(filter);
-        this->model->select();
-        QString friendID;
-        if(model->rowCount()>0){
-            friendID = this->model->record(0).value("user_id").toString();
-            if(friendID == userID){
-                msgBox.setText("Нельзя добавить себя");
-                msgBox.exec();
-            }else{
-                this->model->setTable("notebook");
-                QSqlRecord newRecord = model->record();
-                newRecord.setValue("user_id", userID);
-                newRecord.setValue("friend_id", friendID);
-                newRecord.setValue("friend_name", frend_name);
-                model->insertRecord(-1,newRecord);
-                hideFriend();
-                this->viewNotebookFriend();
-            }
-            //model->submitAll();
-        }else{
-            msgBox.setText("Такого номера не существует");
-            msgBox.exec();
-        }
+
+        QJsonObject addFriend;
+
+        addFriend.insert("friend_phone",frend_phone);
+        addFriend.insert("friend_name",frend_name);
+        addFriend.insert("type","addFriend");
+        addFriend.insert("user_id",userID);
+
+        QJsonDocument doc;
+        doc.setObject(addFriend);
+        sgnAddFriend(doc);
+
+
+//        this->model->setTable("people");
+//        QString filter = QString("phone='%1'").arg(frend_phone);
+//        this->model->setFilter(filter);
+//        this->model->select();
+//        QString friendID;
+//        if(model->rowCount()>0){
+//            friendID = this->model->record(0).value("user_id").toString();
+//            if(friendID == userID){
+//                msgBox.setText("Нельзя добавить себя");
+//                msgBox.exec();
+//            }else{
+//                this->model->setTable("notebook");
+//                QSqlRecord newRecord = model->record();
+//                newRecord.setValue("user_id", userID);
+//                newRecord.setValue("friend_id", friendID);
+//                newRecord.setValue("friend_name", frend_name);
+//                model->insertRecord(-1,newRecord);
+//                hideFriend();
+//                this->viewNotebookFriend();
+//            }
+//            //model->submitAll();
+//        }else{
+//            msgBox.setText("Такого номера не существует");
+//            msgBox.exec();
+//        }
     }else{
         msgBox.setText(err);
         msgBox.exec();
@@ -266,13 +291,32 @@ void MainWindow::on_okFriend_clicked()
 
 }
 
+void MainWindow::sltAddFriendResult(QJsonObject obj){
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(" ");
+    QString err = "";
+    if(obj["error"].toString() == "write"){
+        err = "Ошибка записи!";
+    }else if(obj["error"].toString() == "no_friend"){
+        err = "Такого пользователя нет!";
+    }else{
+
+        viewNotebook->setItem(viewNotebook->rowCount(), 0, new QStandardItem(obj["friend_name"].toString() + "\n" +obj["friend_phone"].toString()));
+        viewNotebook->setItem(viewNotebook->rowCount()-1, 1, new QStandardItem(obj["friend_id"].toString()));
+        //ui->listView->setModel(viewNotebook);
+        err = "Контакт добавлен";
+    }
+    msgBox.setText(err);
+    msgBox.exec();
+}
+
 void MainWindow::on_listView_doubleClicked(const QModelIndex &index)
 {
     this->hide();
-    this->model->setTable("people");
-    QString filter = QString("login='%1'").arg(this->Login);
-    this->model->setFilter(filter);
-    this->model->select();
+//    this->model->setTable("people");
+//    QString filter = QString("login='%1'").arg(this->Login);
+//    this->model->setFilter(filter);
+//    this->model->select();
     emit confirmation(this->model, userID, viewNotebook->item(index.row(),1)->text());
     payment->show();
 }

@@ -26,12 +26,18 @@ public slots:
     void sltAddCard(QJsonDocument);
     void sltGetPeople(QJsonDocument);
     void sltDoPayment(QJsonDocument);
+    //void sgnPayResult(QJsonDocument);
+    void sltPay(QJsonDocument doc);
+    void sltAddFriend(QJsonDocument doc);
 
 signals:
     void sgnAuthenticationResult(bool);
     void sgnAddPeopleResult(bool);
     void sgnGetPeopleResult(QJsonObject);
     void sgnDoPaymentResult(QJsonObject);
+    //void sltPay(QJsonDocument doc);
+    void sgnPayResult(QJsonObject);
+    void sgnAddFriendResult(QJsonObject);
 
 };
 
