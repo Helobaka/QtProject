@@ -26,16 +26,23 @@ Payment::~Payment(){
 
 
 void Payment::confirmation(QSqlTableModel *model, QString  UserID, QString FriendID){
+
+    QJsonObject operationObj;
+    operationObj.insert("type", "doPayment");
+    operationObj.insert("friend_id", FriendID);
+    operationObj.insert("user_id", UserID);
+
+    QJsonDocument operationDoc;
+    operationDoc.setObject(operationObj);
+
+    sgnDoPayment(operationDoc);
+
+
+
     this->model = model;
-//    this->model->setTable("people");
-//    QString filter = QString("user_id='%1'").arg(UserID);
-//    this->model->select();
 
     QString Phone = model->record(0).value("phone").toString();
     this->Login = model->record(0).value("login").toString();
-    //this->userId = model->record(0).value("user_id").toString();
-
-    //ui->PhoneLabel->setText("Номер телефона: " + Phone);
 
     this->model->setTable("cards");
     QString filter = QString("login='%1'").arg(this->Login);
@@ -62,6 +69,10 @@ void Payment::confirmation(QSqlTableModel *model, QString  UserID, QString Frien
     this->userId = UserID;
     this->friendId = FriendID;
     ui->PhoneLabel->setText("Номер телефона получателя: " + Phone);
+}
+
+void Payment::sltDoPaymentResult(QJsonObject result){
+
 }
 
 void Payment::on_AddCard_clicked()

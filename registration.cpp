@@ -49,9 +49,9 @@ void Registration::on_register_2_clicked()
     int pos = 0;
     bool isValid = true;
 
-    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
-    QSqlDatabase db = dbSingle->getDB();
-    QSqlTableModel* model = new QSqlTableModel(this, db);
+//    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
+//    QSqlDatabase db = dbSingle->getDB();
+//    QSqlTableModel* model = new QSqlTableModel(this, db);
 
     QString Login = ui->Login->text();
     QString Password = ui->Password->text();
@@ -61,23 +61,23 @@ void Registration::on_register_2_clicked()
     QString Patronymic = ui->Patronymic->text();
     QString Phone = ui->Phone->text();
 
-    QString filter = QString("login='%1'").arg(Login);
-    model->setTable("people");
-    QSqlRecord newRecord = model->record();
-    model->setFilter(filter);
-    model->select();
+//    QString filter = QString("login='%1'").arg(Login);
+//    model->setTable("people");
+//    QSqlRecord newRecord = model->record();
+//    model->setFilter(filter);
+//    model->select();
 
-    if(model->rowCount()==1){
-        ui->ErrorLogin->setText("*Такой логин существует");
-        isValid=false;
-    }else{
+//    if(model->rowCount()==1){
+//        ui->ErrorLogin->setText("*Такой логин существует");
+//        isValid=false;
+//    }else{
         if(login_validator->validate(Login, pos) != QValidator::Acceptable){
             ui->ErrorLogin->setText("*Некорректный логин");
             isValid=false;
         }else{
             ui->ErrorLogin->setText("");
         }
-    }
+//    }
 
     if(password_validator->validate(Password, pos) != QValidator::Acceptable){
         ui->ErrorPassword->setText("*Некорректный пароль");
@@ -123,68 +123,120 @@ void Registration::on_register_2_clicked()
 
 
     if(isValid){
-        newRecord.setValue("login", Login);
-        newRecord.setValue("password", Password);
-        newRecord.setValue("name", Name);
-        newRecord.setValue("surname", Surname);
-        newRecord.setValue("patronymic", Patronymic);
-        newRecord.setValue("phone", Phone);
-        newRecord.setValue("score", 0);
-        newRecord.remove(newRecord.indexOf("user_id"));
 
-        model->insertRecord(-1,newRecord);
+        QJsonObject operationObj;
+        operationObj.insert("type", "addPeople");
+        operationObj.insert("login", Login);
+        operationObj.insert("password", Password);
+        operationObj.insert("name", Name);
+        operationObj.insert("surname", Surname);
+        operationObj.insert("patronymic", Patronymic);
+        operationObj.insert("phone", Phone);
+        operationObj.insert("score", 0);
 
-        if(model->submitAll()){
-            msgBox.setText("Вы зарегистрировались!");
-            msgBox.setAccessibleName("ацуа");
-            msgBox.exec();
-            if(ui->checkCard->isChecked()){
-                bankCardRecord.setValue("login", Login);
-                bankCardRecord.remove(bankCardRecord.indexOf("id_card"));
-                model->setTable("cards");
-                model->insertRecord(-1, bankCardRecord);
-                model->submitAll();
+        QJsonDocument operationDoc;
+        operationDoc.setObject(operationObj);
+
+        sgnAddPeople(operationDoc);
+
+
+//        if(ui->checkCard->isChecked()){
+//            operationObj.insert("cards", true);
+
+//            operationObj.insert("month", bankCardRecord["month"].toString());
+//            operationObj.insert("number", bankCardRecord["number"].toString());
+//            operationObj.insert("name", bankCardRecord["name"].toString());
+//            operationObj.insert("surname", bankCardRecord["surname"].toString());
+//            operationObj.insert("year", bankCardRecord["year"].toString());
+//            operationObj.insert("cvv", bankCardRecord["cvv"].toString());
+
+//        }else{
+//           operationObj.insert("cards", false);
+//        }
+
+
+//        QJsonDocument operationDoc;
+//        operationDoc.setObject(operationObj);
+
+//        sgnAddPeople(operationDoc);
+
+
+//        newRecord.setValue("login", Login);
+//        newRecord.setValue("password", Password);
+//        newRecord.setValue("name", Name);
+//        newRecord.setValue("surname", Surname);
+//        newRecord.setValue("patronymic", Patronymic);
+//        newRecord.setValue("phone", Phone);
+//        newRecord.setValue("score", 0);
+//        newRecord.remove(newRecord.indexOf("user_id"));
+
+//        model->insertRecord(-1,newRecord);
+
+//        if(model->submitAll()){
+//            msgBox.setText("Вы зарегистрировались!");
+//            msgBox.setAccessibleName("ацуа");
+//            msgBox.exec();
+//            if(ui->checkCard->isChecked()){
+
+//                bankCardRecord.setValue("login", Login);
+//                bankCardRecord.remove(bankCardRecord.indexOf("id_card"));
+//                model->setTable("cards");
+//                model->insertRecord(-1, bankCardRecord);
+//                model->submitAll();
+
+
             }
-            emit callBackRegistration();
-            this->close();
-        }else{
-            msgBox.setText("Ошибка!");
-            msgBox.exec();
-        }    
-    }
+//            emit callBackRegistration();
+//            this->close();
+//        }else{
+//            msgBox.setText("Ошибка!");
+//            msgBox.exec();
+}
 
+void Registration::sltAddPeopleResult(bool result){
+    if(!result){
+        QMessageBox msgBox;
+        msgBox.setText("Ошибка регистрации!");
+        msgBox.setWindowTitle("Ошибка");
+        msgBox.exec();
+        //ошибка
+    }else
+    {
+        if(ui->checkCard->isChecked())
+        {
+            bankCardRecord.insert("type", "addCard");
+            bankCardRecord.insert("login", ui->Login->text());
+            QJsonDocument operationDoc;
+            operationDoc.setObject(bankCardRecord);
+            sgnAddCard(operationDoc);
+        }
+        emit callBackRegistration();
+        this->close();
+    }
 }
 
 void Registration::on_AddCard_clicked()
 {
     this->hide();
     this->bankCard = new BankCard();
-    connect(bankCard, SIGNAL(callBackBankCard(QSqlRecord)), this, SLOT(callBackBankCard(QSqlRecord)));
+    connect(bankCard, SIGNAL(callBackBankCard(QJsonObject)), this, SLOT(callBackBankCard(QJsonObject)));
     connect(bankCard, SIGNAL(callBackCancel()), this, SLOT(callBackCancel()));
     bankCard->show();
 }
 
 
-void Registration::callBackBankCard(QSqlRecord Record)
+void Registration::callBackBankCard(QJsonObject Record)
 {
     bankCardRecord = Record;
     ui->checkCard->setChecked(true);
 
-    bankCardRecord.value("number");
+    //bankCardRecord.value("number");
 
-    ui->CardNumber->setText(bankCardRecord.value("number").toString().left(4).insert(4,"XXXXXXXXXXXX"));
+    ui->CardNumber->setText(bankCardRecord["number"].toString().left(4).insert(4,"XXXXXXXXXXXX"));
 
     ui->checkCard->show();
     this->show();
 
-//    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
-//    QSqlDatabase db = dbSingle->getDB();
-//    QSqlTableModel* model = new QSqlTableModel(this, db);
-
-//    Record.setValue("login", "qwerty");
-//    model->setTable("cards");
-//    model->insertRecord(-1, Record);
-//    model->submitAll();
 }
 
 void  Registration::callBackCancel()

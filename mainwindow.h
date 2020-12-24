@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QSqlRelationalTableModel>
 #include <QStandardItemModel>
+#include "tcpclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,10 +18,15 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void  setClient(TcpClient* client);
+
+    TcpClient* client;
 
 signals:
     //void confirmation(QSqlTableModel *model);
     void confirmation(QSqlTableModel *, QString, QString);
+
+    void sgnGetPeople(QJsonDocument);
 
 private slots:
     void getLogin(QString Login);
@@ -40,6 +46,10 @@ private slots:
     void on_addFriend_clicked();
 
     void on_cancelFriend_clicked();
+
+    void sltGetPeopleResult(QJsonObject);
+
+    void sltDoPaymentResult(QJsonObject)
 
 private:
     Ui::MainWindow *ui;

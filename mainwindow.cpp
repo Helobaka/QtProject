@@ -6,6 +6,7 @@
 #include <QSqlRecord>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QSqlQuery>
 
 
@@ -21,10 +22,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->friendName->setValidator(name_validator);
     ui->friendPhone->setValidator(phone_validator);
 
+    //this->client = new TcpClient();
+
     payment = new Payment();
     connect(this, SIGNAL(confirmation(QSqlTableModel*, QString, QString)), payment, SLOT(confirmation(QSqlTableModel*, QString, QString)));
     connect(payment, SIGNAL(backPayment(QString)), this, SLOT(backPayment(QString)));
     connect(payment, SIGNAL(cancelPayment()), this, SLOT(cancelPayment()));
+    connect(payment, SIGNAL(sgnDoPayment(QJsonDocument)), client, SLOT(sltDoPayment(QJsonDocument)));
+    connect(client, SIGNAL(sgnDoPaymentResult(QJsonObject)), payment, SLOT(sltDoPaymentResult(QJsonObject)));
+
+//    connect(client, SIGNAL(sgnGetPeopleResult(QJsonObject)), this, SLOT(sltGetPeopleResult(QJsonObject)));
+//    connect(this, SIGNAL(sgnGetPeople(QJsonDocument)), client, SLOT(sltGetPeople(QJsonDocument)));
 
     hideFriend();
 }
@@ -34,33 +42,93 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void  MainWindow::setClient(TcpClient* client){
+    this->client = client;
+    connect(client, SIGNAL(sgnGetPeopleResult(QJsonObject)), this, SLOT(sltGetPeopleResult(QJsonObject)));
+    connect(this, SIGNAL(sgnGetPeople(QJsonDocument)), client, SLOT(sltGetPeople(QJsonDocument)));
+}
 
-void MainWindow::getLogin(QString Login){
-    this->Login = Login;
+void  MainWindow::sltGetPeopleResult(QJsonObject result){
 
-    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
-    QSqlDatabase db = dbSingle->getDB();
-    this->model = new QSqlTableModel(this, db);
+    QJsonObject people = result["people"].toObject();
+    QJsonArray friends = result["friends"].toObject()["friends"].toArray();
+    QJsonArray operations = result["operations"].toObject()["operations"].toArray();
 
-    this->model->setTable("people");
-    QString filter = QString("login='%1'").arg(this->Login);
-    this->model->setFilter(filter);
-    this->model->select();
-
-    userID = this->model->record(0).value("user_id").toString();
-
-    QString Name = this->model->record(0).value("name").toString();
-    QString Surname = this->model->record(0).value("surname").toString();
-    QString Patronymic = this->model->record(0).value("patronymic").toString();
-    QString Score = this->model->record(0).value("score").toString();
-    QString Phone = this->model->record(0).value("phone").toString();
+    //////////////////////////////////////////////////
+    QString Name = people["name"].toString();
+    QString Surname = people["surname"].toString();
+    QString Patronymic = people["patronymic"].toString();
+    QString Score = people["score"].toString();
+    QString Phone = people["phone"].toString();
 
     ui->NameLabel->setText("Здравствуйте! " + Surname + " " + Name + " " + Patronymic);
     ui->ScoreLabel->setText("Ваш баланс: " + Score);
     ui->PhoneLabel->setText("Ваш номер: " + Phone);
 
-    this->viewOperations();
-    this->viewNotebookFriend();
+    ////////////////////////////////////////////////////
+
+    viewModel = new QStandardItemModel();
+    int rowCount = operations.count();
+    viewModel->setRowCount(rowCount);
+    viewModel->setColumnCount(3);
+
+    //QStringList headers = QStringList() << "user_id" << "price" << "card_number" << "datetime";
+    QStringList headers = QStringList() << "Price" << "Номер карты" << "Дата";
+    viewModel->setHorizontalHeaderLabels(headers);
+
+    for (int i = 0; i < rowCount; i++){
+        viewModel->setItem(i, 0, new QStandardItem(operations.at(i)["price"].toString()));
+        viewModel->setItem(i, 1, new QStandardItem(operations.at(i)["card_number"].toString()));
+        viewModel->setItem(i, 2, new QStandardItem(operations.at(i)["datetime"].toString()));
+    }
+    ui->tableView->setModel(viewModel);
+
+    ////////////////////////////////////////////////////
+    viewNotebook = new QStandardItemModel();
+
+
+     for (int i = 0; i < rowCount; i++){
+         viewNotebook->setItem(i, 0, new QStandardItem(friends.at(i)["friend_name"].toString() + "\n" +friends.at(i)["friend_phone"].toString()));
+         viewNotebook->setItem(i, 1, new QStandardItem(friends.at(i)["friend_id"].toString()));
+     }
+     ui->listView->setModel(viewNotebook);
+}
+
+void MainWindow::getLogin(QString Login){
+//    this->Login = Login;
+
+//    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
+//    QSqlDatabase db = dbSingle->getDB();
+//    this->model = new QSqlTableModel(this, db);
+
+//    this->model->setTable("people");
+//    QString filter = QString("login='%1'").arg(this->Login);
+//    this->model->setFilter(filter);
+//    this->model->select();
+
+//    userID = this->model->record(0).value("user_id").toString();
+
+//    QString Name = this->model->record(0).value("name").toString();
+//    QString Surname = this->model->record(0).value("surname").toString();
+//    QString Patronymic = this->model->record(0).value("patronymic").toString();
+//    QString Score = this->model->record(0).value("score").toString();
+//    QString Phone = this->model->record(0).value("phone").toString();
+
+//    ui->NameLabel->setText("Здравствуйте! " + Surname + " " + Name + " " + Patronymic);
+//    ui->ScoreLabel->setText("Ваш баланс: " + Score);
+//    ui->PhoneLabel->setText("Ваш номер: " + Phone);
+
+//    this->viewOperations();
+//    this->viewNotebookFriend();
+
+    QJsonObject operationObj;
+    operationObj.insert("type", "getPeople");
+    operationObj.insert("login", Login);
+
+    QJsonDocument operationDoc;
+    operationDoc.setObject(operationObj);
+
+    sgnGetPeople(operationDoc);
 
 }
 

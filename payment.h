@@ -39,6 +39,8 @@ signals:
 
     void cancelPayment();
 
+    void sgnDoPayment(QJsonDocument);
+
 private:
     Ui::Payment *ui;
     QSqlTableModel *model;

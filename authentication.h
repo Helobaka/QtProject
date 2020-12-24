@@ -3,7 +3,11 @@
 
 #include "mainwindow.h"
 #include "registration.h"
+#include "tcpclient.h"
 #include <QWidget>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonParseError>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Authentication; }
@@ -15,9 +19,11 @@ class Authentication :  public QWidget{
 public:
     explicit Authentication(QWidget *parent=0);
     ~Authentication();
+    TcpClient* client;
 
 signals:
     void sendLogin(QString Login);
+    void sgnAuthentication(QString, QString);
 
 private slots:
 
@@ -26,6 +32,8 @@ private slots:
     void on_BtnLogin_clicked();
 
     void on_Registration_clicked();
+
+    void sltAuthenticationResult(bool);
 
 private:
     Ui::Authentication *ui;

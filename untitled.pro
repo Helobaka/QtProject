@@ -1,4 +1,4 @@
-QT       += core gui sql
+QT       += core gui sql network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -14,7 +14,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     payment.cpp \
-    registration.cpp
+    registration.cpp \
+    tcpclient.cpp
 
 HEADERS += \
     authentication.h \
@@ -22,7 +23,8 @@ HEADERS += \
     databasepsql.h \
     mainwindow.h \
     payment.h \
-    registration.h
+    registration.h \
+    tcpclient.h
 
 FORMS += \
     authentication.ui \

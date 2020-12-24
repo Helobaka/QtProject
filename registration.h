@@ -4,6 +4,7 @@
 #include "bankcard.h"
 #include <QWidget>
 #include <QValidator>
+#include "tcpclient.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class Registration; }
@@ -15,9 +16,12 @@ class Registration:  public QWidget{
 public:
     explicit Registration(QWidget *parent=0);
     ~Registration();
+    TcpClient* client;
 
 signals:
     void callBackRegistration();
+    void sgnAddPeople(QJsonDocument);
+    void sgnAddCard(QJsonDocument);
 
 private slots:
     void on_callBack_clicked();
@@ -26,15 +30,17 @@ private slots:
 
     void on_AddCard_clicked();
 
-    void callBackBankCard(QSqlRecord Record);
+    void callBackBankCard(QJsonObject Record);
 
     void callBackCancel();
+
+    void sltAddPeopleResult(bool);
 
 private:
     Ui::Registration *ui;
     QRegExpValidator *phone_validator, *login_validator, *name_validator, *surname_validator, *patronymic_validator, *password_validator;
     BankCard* bankCard;
-    QSqlRecord bankCardRecord;
+    QJsonObject bankCardRecord;
 };
 
 #endif // REGISTRATION_H

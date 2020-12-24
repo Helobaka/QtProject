@@ -4,6 +4,9 @@
 #include <QWidget>
 #include <QSqlRecord>
 #include <QRegExpValidator>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonParseError>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class BankCard; }
@@ -17,7 +20,7 @@ public:
     ~BankCard();
 
 signals:
-    void callBackBankCard(QSqlRecord Record);
+    void callBackBankCard(QJsonObject Record);
     void callBackCancel();
 
 private slots:

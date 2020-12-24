@@ -35,11 +35,11 @@ void BankCard::on_AddCard_clicked()
     bool isValid = true;
     int pos = 0;
 
-    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
-    QSqlDatabase db = dbSingle->getDB();
-    QSqlTableModel* model = new QSqlTableModel(this, db);
+//    DataBasePSQL* dbSingle = DataBasePSQL::Instance();
+//    QSqlDatabase db = dbSingle->getDB();
+//    QSqlTableModel* model = new QSqlTableModel(this, db);
 
-    model->setTable("cards");
+//    model->setTable("cards");
 
 
     QString Name = ui->Name->text();
@@ -85,14 +85,23 @@ void BankCard::on_AddCard_clicked()
     }
 
     if(isValid){
-        QSqlRecord newRecord = model->record();
 
-        newRecord.setValue("month", Month);
-        newRecord.setValue("number", Number);
-        newRecord.setValue("name", Name);
-        newRecord.setValue("surname", Surname);
-        newRecord.setValue("year", Year);
-        newRecord.setValue("cvv", CVV);
+        QJsonObject newRecord;
+        newRecord.insert("month", Month);
+        newRecord.insert("number", Number);
+        newRecord.insert("name", Name);
+        newRecord.insert("surname", Surname);
+        newRecord.insert("year", Year);
+        newRecord.insert("cvv", CVV);
+
+//        QSqlRecord newRecord = model->record();
+
+//        newRecord.setValue("month", Month);
+//        newRecord.setValue("number", Number);
+//        newRecord.setValue("name", Name);
+//        newRecord.setValue("surname", Surname);
+//        newRecord.setValue("year", Year);
+//        newRecord.setValue("cvv", CVV);
 
         emit callBackBankCard(newRecord);
         this->close();
