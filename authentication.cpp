@@ -60,6 +60,7 @@ void Authentication::sltAuthenticationResult(bool result){
     msgBox.setWindowTitle(" ");
     if(!result){
         msgBox.setText("Неправильный логин или пароль");
+        msgBox.exec();
     }else{
         msgBox.setText("Проходите");
 //        connect(client, SIGNAL(sgnGetPeopleResult(QJsonObject)), mainWindow, SLOT(sltGetPeopleResult(QJsonObject)));
